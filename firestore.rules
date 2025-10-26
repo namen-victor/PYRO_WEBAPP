@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function to get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+    
+    // Helper function to check if user is staff
+    function isStaff() {
+      return isSignedIn() && getUserData().role == 'staff';
+    }
+    
+    // Helper function to check if user is client
+    function isClient() {
+      return isSignedIn() && getUserData().role == 'client';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow user creation during signup (MUST BE FIRST)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow users to read/write their own document
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can read and write all user documents
+      allow read, write: if isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'admin';
+      
+      // Staff can read all user documents but not write
+      allow read: if isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'staff';
+    }
+    
+    // Onboarding collection (if used separately from users)
+    match /onboarding/{userId} {
+      // Allow users to create and manage their own onboarding data
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can read and write all onboarding documents
+      allow read, write: if isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'admin';
+      
+      // Staff can read all onboarding documents
+      allow read: if isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'staff';
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read, write: if isAdmin();
+      allow read: if isStaff();
+      allow read: if isClient() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+    
+    // Applications collection (if you have one)
+    match /applications/{applicationId} {
+      allow read, write: if isAdmin();
+      allow read: if isStaff();
+      allow read, write: if isClient() && resource.data.userId == request.auth.uid;
+      allow create: if isClient();
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,33 @@
+====================================
+EASIEST WAY TO BACKUP TO GITHUB
+====================================
+
+THE SIMPLEST SOLUTION:
+
+1. Open GitHub Desktop
+2. Make sure you're signed in with your pyrosolutionsinc account
+3. You should see "Publish branch" button
+4. Click it
+5. That's it!
+
+IF THAT DOESN'T WORK:
+
+The repository might have been created with commits. Let's delete it and start fresh:
+
+A) Delete the existing GitHub repository:
+   1. Go to: https://github.com/pyrosolutionsinc/PYRO_WEBAPP
+   2. Click "Settings" (at the very bottom of the page)
+   3. Scroll down to "Danger Zone"
+   4. Click "Delete this repository"
+   5. Type: PYRO_WEBAPP to confirm
+   6. Click "I understand the consequences..."
+
+B) Then in GitHub Desktop:
+   1. Click "Publish branch"
+   2. It will create a new repository
+   3. Done!
+
+OR JUST TELL ME:
+- If you see any error messages
+- And I'll fix it for you
+
