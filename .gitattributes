@@ -1,0 +1,4 @@
+# Ignore secrets in git history
+*.local filter=git-crypt
+*.local diff=git-crypt
+
