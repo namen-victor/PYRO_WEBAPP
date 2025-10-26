@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -10,6 +10,7 @@ import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
 import { GenderSelect } from '@/components/GenderSelect';
 import { Doodle } from '@/components/Doodle';
+import DoodleDevOverlay from '@/components/DoodleDevOverlay';
 import { getStepMetadata, basicsSchema, parseDisplayName } from '@/lib/onboarding';
 
 type BasicsFormData = {
@@ -22,6 +23,8 @@ type BasicsFormData = {
 
 export default function BasicsStep() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const showDoodleOverlay = (searchParams.get('doodle') || '').toLowerCase() === 'basics';
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const metadata = getStepMetadata(0);
@@ -166,7 +169,7 @@ export default function BasicsStep() {
       isContinueLoading={loading}
       showBackButton={false}
     >
-      {/* Doodle: Woman with laptop */}
+      {/* Permanent Doodle (production) */}
       <Doodle
         src="/doodles/1.svg"
         alt="Doodle"
@@ -175,7 +178,19 @@ export default function BasicsStep() {
         desktopScale={0.30}
         mobilePosition="hidden"
       />
-      
+
+      {/* Dev Overlay (drag to fine-tune) → enable with /onboarding/basics?doodle=basics */}
+      {showDoodleOverlay && (
+        <DoodleDevOverlay
+          src="/doodles/1.svg"
+          alt="Doodle"
+          position="bottom-left"
+          initialOffset={{ x: -226, y: -107 }}
+          initialScale={0.30}
+          maxWidth="none"
+        />
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* First Name */}
         <div style={{ marginBottom: 20 }}>
