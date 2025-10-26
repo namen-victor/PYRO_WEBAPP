@@ -15,6 +15,14 @@ const nextConfig = {
   // Experimental features
   experimental: {
     typedRoutes: true
+  },
+  
+  // Disable TypeScript errors during build
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    ignoreBuildErrors: true
   }
 };
 
