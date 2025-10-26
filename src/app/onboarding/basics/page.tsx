@@ -24,7 +24,7 @@ type BasicsFormData = {
 export default function BasicsStep() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const showDoodleOverlay = (searchParams.get('doodle') || '').toLowerCase() === 'basics';
+  const showDoodleOverlay = searchParams.has('doodle');
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const metadata = getStepMetadata(0);
