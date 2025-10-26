@@ -178,6 +178,7 @@ export default function BasicsStep() {
           offset={{ x: -209, y: -102 }}
           desktopScale={0.25}
           mobilePosition="hidden"
+          maxWidth="none"
         />
       )}
       
@@ -276,29 +277,4 @@ export default function BasicsStep() {
             style={{
               width: '100%',
               padding: '12px 16px',
-              border: `1px solid ${errors.jobTitle ? colors.error : colors.border}`,
-              borderRadius: 8,
-              fontSize: 15,
-              backgroundColor: colors.white,
-              boxSizing: 'border-box',
-              outline: 'none',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
-              boxShadow: errors.jobTitle ? `0 0 0 3px rgba(220, 38, 38, 0.15)` : 'none'
-            }}
-            onFocus={(e) => !errors.jobTitle && (e.currentTarget.style.borderColor = colors.accent)}
-            onBlur={(e) => !errors.jobTitle && (e.currentTarget.style.borderColor = colors.border)}
-          />
-        </div>
-
-        {/* Gender */}
-        <GenderSelect
-          value={genderValue || ''}
-          onChange={(value) => setValue('gender', value, { shouldValidate: true })}
-          error={errors.gender?.message || errors.genderCustom?.message}
-          customValue={genderCustomValue || ''}
-          onCustomChange={(value) => setValue('genderCustom', value, { shouldValidate: true })}
-        />
-      </form>
-    </StepShell>
-  );
-}
+              border: `
