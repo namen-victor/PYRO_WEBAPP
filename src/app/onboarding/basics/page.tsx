@@ -170,15 +170,17 @@ export default function BasicsStep() {
       showBackButton={false}
     >
       {/* Permanent Doodle (production) */}
-      <Doodle
-        src="/doodles/1.svg"
-        alt="Doodle"
-        position="bottom-left"
-        offset={{ x: -226, y: -107 }}
-        desktopScale={0.30}
-        mobilePosition="hidden"
-      />
-
+      {!showDoodleOverlay && (
+        <Doodle
+          src="/doodles/1.svg"
+          alt="Doodle"
+          position="bottom-left"
+          offset={{ x: -226, y: -107 }}
+          desktopScale={0.30}
+          mobilePosition="hidden"
+        />
+      )}
+      
       {/* Dev Overlay (drag to fine-tune) → enable with /onboarding/basics?doodle=basics */}
       {showDoodleOverlay && (
         <DoodleDevOverlay
