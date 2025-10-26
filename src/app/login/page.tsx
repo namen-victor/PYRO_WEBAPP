@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<'email' | 'password' | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -56,9 +58,51 @@ export default function LoginPage() {
     }
   }
 
+  function getFirebaseErrorMessage(error: any): { message: string; field: 'email' | 'password' | null } {
+    const errorCode = error?.code || '';
+    
+    switch (errorCode) {
+      case 'auth/user-not-found':
+      case 'auth/invalid-email':
+        return { 
+          message: 'No account found with this email address. Please sign up or check your email.', 
+          field: 'email' 
+        };
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return { 
+          message: 'Incorrect password. Please try again or reset your password.', 
+          field: 'password' 
+        };
+      case 'auth/user-disabled':
+        return { 
+          message: 'This account has been disabled. Please contact support.', 
+          field: 'email' 
+        };
+      case 'auth/too-many-requests':
+        return { 
+          message: 'Too many failed attempts. Please wait a moment and try again.', 
+          field: 'password' 
+        };
+      case 'auth/network-request-failed':
+        return { 
+          message: 'Network error. Please check your internet connection and try again.', 
+          field: null 
+        };
+      default:
+        return { 
+          message: 'Login failed. Please check your credentials and try again.', 
+          field: null 
+        };
+    }
+  }
+
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setErrorField(null);
+    
     try {
       await signInWithEmail(email, password);
       const user = await getUserProfile('admin_123');
@@ -70,7 +114,9 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Firebase login error:', error);
-      alert('Login failed: ' + (error as Error).message);
+      const { message, field } = getFirebaseErrorMessage(error);
+      setError(message);
+      setErrorField(field);
     } finally {
       setLoading(false);
     }
@@ -308,13 +354,17 @@ export default function LoginPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError(null);
+                  setErrorField(null);
+                }}
                 placeholder="Email"
                 required
                 style={{
                   width: '100%',
                   padding: '12px 16px',
-                  border: `1px solid ${colors.border}`,
+                  border: `1px solid ${errorField === 'email' ? '#ef4444' : colors.border}`,
                   borderRadius: '8px',
                   fontSize: '15px',
                   backgroundColor: colors.white,
@@ -322,8 +372,8 @@ export default function LoginPage() {
                   outline: 'none',
                   transition: 'border-color 0.2s'
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = colors.accent}
-                onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+                onFocus={(e) => e.currentTarget.style.borderColor = errorField === 'email' ? '#ef4444' : colors.accent}
+                onBlur={(e) => e.currentTarget.style.borderColor = errorField === 'email' ? '#ef4444' : colors.border}
               />
             </div>
 
@@ -342,14 +392,18 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(null);
+                    setErrorField(null);
+                  }}
                   placeholder="Password"
                   required
                   style={{
                     width: '100%',
                     padding: '12px 16px',
                     paddingRight: '48px',
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${errorField === 'password' ? '#ef4444' : colors.border}`,
                     borderRadius: '8px',
                     fontSize: '15px',
                     backgroundColor: colors.white,
@@ -357,8 +411,8 @@ export default function LoginPage() {
                     outline: 'none',
                     transition: 'border-color 0.2s'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = colors.accent}
-                  onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
+                  onFocus={(e) => e.currentTarget.style.borderColor = errorField === 'password' ? '#ef4444' : colors.accent}
+                  onBlur={(e) => e.currentTarget.style.borderColor = errorField === 'password' ? '#ef4444' : colors.border}
                 />
                 <button
                   type="button"
@@ -389,6 +443,34 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div style={{
+                marginBottom: '16px',
+                padding: '12px 16px',
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p style={{
+                  margin: 0,
+                  fontSize: '14px',
+                  color: '#dc2626',
+                  fontWeight: 500
+                }}>
+                  {error}
+                </p>
+              </div>
+            )}
 
             {/* Forgot Password Link */}
             <div style={{ marginBottom: '24px', textAlign: 'left' }}>
