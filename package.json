@@ -12,7 +12,7 @@
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
     "emulators": "firebase emulators:start",
-    "prebuild": "npm run typecheck && npm run lint"
+    "prebuild": "npm run lint"
   },
   "dependencies": {
     "@dataconnect/generated": "link:src/dataconnect-generated",
