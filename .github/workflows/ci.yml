@@ -62,9 +62,9 @@ jobs:
           name: build-files
           path: out/
 
-  # Test job (placeholder for when tests are added)
+  # Test job - temporarily disabled until test dependencies are installed
   # test:
-  #   name: Tests
+  #   name: Unit Tests
   #   runs-on: ubuntu-latest
   #   steps:
   #     - uses: actions/checkout@v4
