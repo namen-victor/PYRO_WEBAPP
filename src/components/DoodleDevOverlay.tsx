@@ -33,6 +33,41 @@ export const DoodleDevOverlay: React.FC<DoodleDevOverlayProps> = ({
   const [scale, setScale] = useState(initialScale);
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Keyboard nudging for pixel-perfect placement
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only when overlay is visible on page
+      let moved = false;
+      const step = e.shiftKey ? 5 : 1; // Shift for faster moves
+      if (e.key === 'ArrowLeft') {
+        setOffset((o) => ({ ...o, x: o.x - step }));
+        moved = true;
+      } else if (e.key === 'ArrowRight') {
+        setOffset((o) => ({ ...o, x: o.x + step }));
+        moved = true;
+      } else if (e.key === 'ArrowUp') {
+        setOffset((o) => ({ ...o, y: o.y - step }));
+        moved = true;
+      } else if (e.key === 'ArrowDown') {
+        setOffset((o) => ({ ...o, y: o.y + step }));
+        moved = true;
+      } else if (e.key === '+' || e.key === '=') {
+        setScale((s) => Number((s + 0.01).toFixed(2)));
+        moved = true;
+      } else if (e.key === '-' || e.key === '_') {
+        setScale((s) => Number((s - 0.01).toFixed(2)));
+        moved = true;
+      }
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !imgRef.current) return;
@@ -105,9 +140,9 @@ export const DoodleDevOverlay: React.FC<DoodleDevOverlayProps> = ({
       position: 'absolute',
       pointerEvents: 'auto',
       zIndex: 10,
-      transition: 'all 0.3s ease-out',
+      transition: 'none',
       willChange: 'transform',
-      maxWidth: maxWidth ?? '320px',
+      maxWidth: maxWidth ?? 'none',
       height: 'auto',
       transform: `scale(${scale})`,
       cursor: isDragging ? 'grabbing' : 'grab'
@@ -157,22 +192,29 @@ export const DoodleDevOverlay: React.FC<DoodleDevOverlayProps> = ({
           borderRadius: 12,
           boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
           zIndex: 1000,
-          minWidth: 320
+          minWidth: 360
         }}
       >
         <div style={{ marginBottom: 12, fontWeight: 700, fontSize: 16 }}>🎯 Doodle Dev Overlay</div>
-        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <label style={{ fontSize: 13, minWidth: 50 }}>Scale:</label>
-          <input
-            type="range"
-            min={0.05}
-            max={1.5}
-            step={0.05}
-            value={scale}
-            onChange={(e) => setScale(Number(e.target.value))}
-            style={{ flex: 1 }}
-          />
-          <span style={{ fontSize: 13, minWidth: 40 }}>{scale.toFixed(2)}</span>
+        <div style={{ marginBottom: 8, fontSize: 13 }}>
+          Offset: x <strong>{offset.x}</strong>, y <strong>{offset.y}</strong> &nbsp; | &nbsp; Scale: <strong>{scale.toFixed(2)}</strong>
+        </div>
+        <div style={{ marginBottom: 8, display: 'flex', gap: 8 }}>
+          <button onClick={() => setOffset((o) => ({ ...o, y: o.y - 1 }))}>⬆︎</button>
+          <div>
+            <button onClick={() => setOffset((o) => ({ ...o, x: o.x - 1 }))}>⬅︎</button>
+            <button onClick={() => setOffset((o) => ({ ...o, x: o.x + 1 }))} style={{ marginLeft: 6 }}>➡︎</button>
+          </div>
+          <button onClick={() => setOffset((o) => ({ ...o, y: o.y + 1 }))}>⬇︎</button>
+          <button onClick={() => setScale((s) => Number((s - 0.01).toFixed(2)))} style={{ marginLeft: 10 }}>-</button>
+          <button onClick={() => setScale((s) => Number((s + 0.01).toFixed(2)))}>+</button>
+          <button onClick={() => { setOffset(initialOffset); setScale(initialScale); }} style={{ marginLeft: 10 }}>Reset</button>
+          <button
+            onClick={() => { navigator.clipboard.writeText(codeSnippet); alert('✅ Code copied!'); }}
+            style={{ marginLeft: 'auto', background: '#7aa3a1', color: 'white', border: 'none', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', fontWeight: 600 }}
+          >
+            📋 Copy Code
+          </button>
         </div>
         <div
           style={{
@@ -181,32 +223,16 @@ export const DoodleDevOverlay: React.FC<DoodleDevOverlayProps> = ({
             borderRadius: 6,
             fontSize: 12,
             fontFamily: 'monospace',
-            marginTop: 12,
+            marginTop: 8,
             lineHeight: 1.6,
             whiteSpace: 'pre-wrap'
           }}
         >
           {codeSnippet}
         </div>
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(codeSnippet);
-            alert('✅ Code copied!');
-          }}
-          style={{
-            width: '100%',
-            marginTop: 12,
-            padding: '10px',
-            background: '#7aa3a1',
-            color: 'white',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-            fontWeight: 600
-          }}
-        >
-          📋 Copy Code
-        </button>
+        <div style={{ marginTop: 8, fontSize: 12, color: '#bbb' }}>
+          Tips: Use arrow keys to nudge (Shift = 5px). +/- to change scale by 0.01.
+        </div>
       </div>
     </>
   );
