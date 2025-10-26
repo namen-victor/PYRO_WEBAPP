@@ -175,8 +175,8 @@ export default function BasicsStep() {
           src="/doodles/1.svg"
           alt="Doodle"
           position="bottom-left"
-          offset={{ x: -226, y: -107 }}
-          desktopScale={0.30}
+          offset={{ x: -209, y: -102 }}
+          desktopScale={0.25}
           mobilePosition="hidden"
         />
       )}
@@ -187,8 +187,8 @@ export default function BasicsStep() {
           src="/doodles/1.svg"
           alt="Doodle"
           position="bottom-left"
-          initialOffset={{ x: -226, y: -107 }}
-          initialScale={0.30}
+          initialOffset={{ x: -209, y: -102 }}
+          initialScale={0.25}
           maxWidth="none"
         />
       )}
