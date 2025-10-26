@@ -169,10 +169,10 @@ export default function BasicsStep() {
       {/* Doodle: Woman with laptop */}
       <Doodle
         src="/doodles/1.svg"
-        alt="Person working on laptop"
+        alt="Doodle"
         position="bottom-left"
-        offset={{ x: -265, y: -200 }}
-        desktopScale={0.60}
+        offset={{ x: -226, y: -107 }}
+        desktopScale={0.30}
         mobilePosition="hidden"
       />
       
