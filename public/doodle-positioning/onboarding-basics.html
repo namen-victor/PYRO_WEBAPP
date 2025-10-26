@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doodle Positioning - Onboarding Basics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ebebeb; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 32px; }
+    .header h1 { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 8px; }
+    .header p { font-size: 16px; color: #666; }
+    .controls { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; }
+    .control-group { display: flex; align-items: center; gap: 8px; }
+    .control-group label { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+    .control-group input[type="range"] { width: 150px; }
+    .control-group span { font-size: 14px; color: #1a1a1a; min-width: 50px; }
+    button { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #2e2e2e; color: white; }
+    .btn-primary:hover { background: #1a1a1a; }
+    .btn-secondary { background: white; color: #2e2e2e; border: 1px solid #e0e0e0; }
+    .btn-secondary:hover { border-color: #2e2e2e; }
+    .form-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); position: relative; min-height: 400px; }
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+    .field label .required { color: #dc2626; }
+    .field input { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; transition: border-color 0.2s; }
+    .field input:focus { border-color: #7aa3a1; }
+    #doodle { position: absolute; cursor: move; user-select: none; max-width: none; z-index: 10; }
+    #doodle:active { cursor: grabbing; }
+    .output { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-top: 24px; }
+    .output h3 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; }
+    .output pre { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; font-family: 'Monaco', 'Consolas', monospace; font-size: 13px; color: #1a1a1a; overflow-x: auto; }
+    .instructions { background: #ecfdf5; border: 1px solid #7aa3a1; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .instructions p { margin: 0; color: #166534; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎨 Doodle Positioning - Onboarding Basics</h1>
+      <p>Drag the doodle to position it perfectly</p>
+    </div>
+
+    <div class="instructions">
+      <p><strong>Instructions:</strong> Drag the doodle to position it exactly. Use scale slider to resize. When done, click "Copy Code" to get positioning values.</p>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Scale:</label>
+        <input type="range" id="scale" min="0.3" max="2.0" step="0.05" value="1.0">
+        <span id="scaleValue">1.00</span>
+      </div>
+      <button class="btn-secondary" onclick="resetPosition()">Reset</button>
+      <button class="btn-primary" onclick="copyCode()">📋 Copy Code</button>
+    </div>
+
+    <div class="form-card" id="formCard">
+      <img id="doodle" src="/doodles/1.svg" alt="Doodle" draggable="false">
+      <div class="field"><label>First Name <span class="required">*</span></label><input type="text" value="Osayenamen"></div>
+      <div class="field"><label>Last Name <span class="required">*</span></label><input type="text" value="Omoregie"></div>
+      <div class="field"><label>Job Title <span class="required">*</span></label><input type="text" value="Software Engineer"></div>
+      <div class="field"><label>Gender <span class="required">*</span></label><input type="text" value="Male"></div>
+    </div>
+
+    <div class="output">
+      <h3>Generated Code:</h3>
+      <pre id="codeOutput"></pre>
+    </div>
+  </div>
+
+  <script>
+    const doodle = document.getElementById('doodle');
+    const formCard = document.getElementById('formCard');
+    const scaleInput = document.getElementById('scale');
+    const scaleValue = document.getElementById('scaleValue');
+    const codeOutput = document.getElementById('codeOutput');
+    let isDragging = false, currentX = 0, currentY = 0, currentScale = 1.0, offsetX = 0, offsetY = 0;
+    
+    function updatePosition() {
+      doodle.style.left = currentX + 'px';
+      doodle.style.bottom = currentY + 'px';
+      doodle.style.transform = `scale(${currentScale})`;
+      doodle.style.transformOrigin = 'bottom left';
+      updateCode();
+    }
+    
+    doodle.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const doodleRect = doodle.getBoundingClientRect();
+      offsetX = e.clientX - doodleRect.left;
+      offsetY = e.clientY - doodleRect.top;
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const cardRect = formCard.getBoundingClientRect();
+      const doodleRect = doodle.getBoundingClientRect();
+      const x = e.clientX - cardRect.left - offsetX;
+      const top = e.clientY - cardRect.top - offsetY;
+      const bottom = cardRect.height - (top + doodleRect.height);
+      currentX = Math.round(x);
+      currentY = Math.round(bottom);
+      updatePosition();
+    });
+    
+    document.addEventListener('mouseup', () => { isDragging = false; });
+    
+    scaleInput.addEventListener('input', (e) => {
+      currentScale = parseFloat(e.target.value);
+      scaleValue.textContent = currentScale.toFixed(2);
+      updatePosition();
+    });
+    
+    function resetPosition() {
+      currentX = 0; currentY = 0; currentScale = 1.0;
+      scaleInput.value = 1.0; scaleValue.textContent = '1.00';
+      updatePosition();
+    }
+    
+    function updateCode() {
+      codeOutput.textContent = `<Doodle
+  src="/doodles/1.svg"
+  alt="Person working"
+  position="bottom-left"
+  offset={{ x: ${currentX}, y: ${currentY} }}
+  desktopScale={${currentScale.toFixed(2)}}
+  mobilePosition="hidden"
+/>`;
+    }
+    
+    function copyCode() {
+      navigator.clipboard.writeText(codeOutput.textContent);
+      alert('✅ Code copied!');
+    }
+    
+    updatePosition();
+  </script>
+</body>
+</html>
+
