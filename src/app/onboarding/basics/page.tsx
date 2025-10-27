@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -9,8 +9,6 @@ import { onAuthStateChange } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
 import { GenderSelect } from '@/components/GenderSelect';
-import { Doodle } from '@/components/Doodle';
-import DoodleDevOverlay from '@/components/DoodleDevOverlay';
 import { getStepMetadata, basicsSchema, parseDisplayName } from '@/lib/onboarding';
 
 type BasicsFormData = {
@@ -23,8 +21,6 @@ type BasicsFormData = {
 
 export default function BasicsStep() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const showDoodleOverlay = searchParams.has('doodle');
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const metadata = getStepMetadata(0);
@@ -169,19 +165,7 @@ export default function BasicsStep() {
       isContinueLoading={loading}
       showBackButton={false}
     >
-      {/* Doodle removed per request */}
-      
-      {/* Dev Overlay (drag to fine-tune) → enable with /onboarding/basics?doodle=basics */}
-      {showDoodleOverlay && (
-        <DoodleDevOverlay
-          src="/doodles/1.svg"
-          alt="Doodle"
-          position="bottom-left"
-          initialOffset={{ x: -209, y: -102 }}
-          initialScale={0.25}
-          maxWidth="none"
-        />
-      )}
+      {/* Doodle and dev overlay removed per request */}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* First Name */}
