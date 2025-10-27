@@ -10,8 +10,6 @@ import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
 import { CountrySelect } from '@/components/CountrySelect';
 import { ResidencySelect } from '@/components/ResidencySelect';
-import { Doodle } from '@/components/Doodle';
-import DoodleDevOverlay from '@/components/DoodleDevOverlay';
 import { getStepMetadata, locationSchema, ResidencyStatus } from '@/lib/onboarding';
 import { residencyAliasForCountry } from '@/lib/residency-alias';
 
@@ -148,68 +146,7 @@ export default function LocationStep() {
       onContinue={handleSubmit(onSubmit)}
       isContinueLoading={loading}
     >
-      {/* FINAL: Doodle 7.0 placement (hidden when editing via ?doodle=7.0) */}
-      {!(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '7.0') && (
-        <Doodle
-          src="/doodles/7.0.svg"
-          alt="Traveler with luggage"
-          position="bottom-right"
-          offset={{ x: -560, y: -404 }}
-          desktopScale={0.35}
-          mobilePosition="hidden"
-          maxWidth="none"
-        />
-      )}
-
-      {/* DEV OVERLAY: enable with ?doodle=1 */}
-      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '1' && (
-        <DoodleDevOverlay
-          src="/doodles/7.1.svg"
-          alt="Traveler luggage extension"
-          position="bottom-right"
-          initialOffset={{ x: 478, y: 488 }}
-          initialScale={0.15}
-          maxWidth={"none"}
-        />
-      )}
-
-      {/* DEV OVERLAY: edit 7.0 precisely with ?doodle=7.0 */}
-      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '7.0' && (
-        <DoodleDevOverlay
-          src="/doodles/7.0.svg"
-          alt="Traveler with luggage"
-          position="bottom-right"
-          initialOffset={{ x: -300, y: -18 }}
-          initialScale={0.35}
-          maxWidth={"none"}
-        />
-      )}
-
-      {/* FINAL: Doodle 7.1 placement (hidden when editing via ?doodle=7.1) */}
-      {!(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '7.1') && (
-        <Doodle
-          src="/doodles/7.1.svg"
-          alt="Traveler luggage extension"
-          position="bottom-right"
-          offset={{ x: 478, y: 488 }}
-          desktopScale={0.15}
-          mobilePosition="hidden"
-          maxWidth="none"
-        />
-      )}
-
-      {/* DEV OVERLAY: edit 7.1 precisely with ?doodle=7.1 */}
-      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '7.1' && (
-        <DoodleDevOverlay
-          src="/doodles/7.1.svg"
-          alt="Traveler luggage extension"
-          position="bottom-right"
-          initialOffset={{ x: 478, y: 488 }}
-          initialScale={0.15}
-          maxWidth={"none"}
-        />
-      )}
-      
+      {/* All doodles removed per request */}
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Country */}
         <Controller

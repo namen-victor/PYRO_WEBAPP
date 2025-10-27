@@ -11,8 +11,6 @@ import { FileDrop } from '@/components/FileDrop';
 import { SimplePDFViewer } from '@/components/SimplePDFViewer';
 import { Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
-import { Doodle } from '@/components/Doodle';
-import DoodleDevOverlay from '@/components/DoodleDevOverlay';
 import { getStepMetadata } from '@/lib/onboarding';
 
 export default function ResumeStep() {
@@ -177,30 +175,8 @@ export default function ResumeStep() {
       isContinueLoading={loading}
       continueLabel="Continue"
     >
-      {/* Doodle: Man with briefcase and resume (beside upload section) */}
-      {!(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '5') && (
-        <Doodle
-          src="/doodles/5.svg"
-          alt="Professional with resume"
-          position="middle-left"
-          offset={{ x: -292, y: 153 }}
-          desktopScale={0.85}
-          mobilePosition="hidden"
-        />
-      )}
+      {/* All doodles removed per request */}
 
-      {/* DEV OVERLAY: enable with ?doodle=5 for precise placement */}
-      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '5' && (
-        <DoodleDevOverlay
-          src="/doodles/5.svg"
-          alt="Professional with resume"
-          position="middle-left"
-          initialOffset={{ x: 0, y: 0 }}
-          initialScale={0.85}
-          maxWidth={"320px"}
-        />
-      )}
-      
       <div>
         {/* Info banner */}
         <div style={{
