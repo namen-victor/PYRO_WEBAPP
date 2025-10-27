@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -21,9 +21,22 @@ type BasicsFormData = {
 
 export default function BasicsStep() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasDoodleParam = searchParams?.has('doodle');
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const metadata = getStepMetadata(0);
+
+  // Hard-delete the overlay URL by redirecting to the canonical path with no query
+  useEffect(() => {
+    if (hasDoodleParam) {
+      router.replace('/onboarding/basics');
+    }
+  }, [hasDoodleParam, router]);
+
+  if (hasDoodleParam) {
+    return null; // prevent any render while redirecting
+  }
 
   const {
     register,
