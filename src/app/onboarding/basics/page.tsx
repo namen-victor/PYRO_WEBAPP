@@ -27,17 +27,6 @@ export default function BasicsStep() {
   const [userId, setUserId] = useState<string | null>(null);
   const metadata = getStepMetadata(0);
 
-  // Hard-delete the overlay URL by redirecting to the canonical path with no query
-  useEffect(() => {
-    if (hasDoodleParam) {
-      router.replace('/onboarding/basics');
-    }
-  }, [hasDoodleParam, router]);
-
-  if (hasDoodleParam) {
-    return null; // prevent any render while redirecting
-  }
-
   const {
     register,
     handleSubmit,
@@ -54,6 +43,17 @@ export default function BasicsStep() {
       genderCustom: ''
     }
   });
+
+  // Hard-delete the overlay URL by redirecting to the canonical path with no query
+  useEffect(() => {
+    if (hasDoodleParam) {
+      router.replace('/onboarding/basics');
+    }
+  }, [hasDoodleParam, router]);
+
+  if (hasDoodleParam) {
+    return null; // prevent any render while redirecting
+  }
 
   const genderValue = watch('gender');
   const genderCustomValue = watch('genderCustom');
