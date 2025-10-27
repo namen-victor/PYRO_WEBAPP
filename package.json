@@ -9,10 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:watch": "jest --watch",
     "test:e2e": "playwright test",
-    "emulators": "firebase emulators:start",
-    "prebuild": "npm run lint"
+    "emulators": "firebase emulators:start"
   },
   "dependencies": {
     "@dataconnect/generated": "link:src/dataconnect-generated",

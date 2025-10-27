@@ -8,6 +8,8 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChange } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
+import { Doodle } from '@/components/Doodle';
+import DoodleDevOverlay from '@/components/DoodleDevOverlay';
 import { getStepMetadata, contactSchema } from '@/lib/onboarding';
 import { getCountryCode } from '@/lib/constants/country-codes';
 import { 
@@ -308,8 +310,54 @@ export default function ContactStep() {
       onContinue={handleSubmit(onSubmit)}
       isContinueLoading={loading}
     >
-      {/* All doodles removed per request */}
+      {/* Doodle: Man at desktop (upper left, near email/phone fields) */}
+      {!(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '6') && (
+        <Doodle
+          src="/doodles/6.0.svg"
+          alt="Person at computer"
+          position="top-left"
+          offset={{ x: -58, y: -448 }}
+          desktopScale={0.80}
+          mobilePosition="hidden"
+        />
+      )}
 
+      {/* DEV OVERLAY: enable with ?doodle=6 for precise placement */}
+      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '6' && (
+        <DoodleDevOverlay
+          src="/doodles/6.0.svg"
+          alt="Person at computer"
+          position="top-left"
+          initialOffset={{ x: -58, y: -448 }}
+          initialScale={0.80}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* Doodle: Man on phone (right side, near phone field, talking to #6) */}
+      {!(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '3') && (
+        <Doodle
+          src="/doodles/3.svg?v=2"
+          alt="Person on phone"
+          position="top-right"
+          offset={{ x: -317, y: 17 }}
+          desktopScale={0.85}
+          mobilePosition="hidden"
+        />
+      )}
+
+      {/* DEV OVERLAY: enable with ?doodle=3 for precise placement */}
+      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('doodle') === '3' && (
+        <DoodleDevOverlay
+          src="/doodles/3.svg?v=2"
+          alt="Person on phone"
+          position="top-right"
+          initialOffset={{ x: -317, y: 17 }}
+          initialScale={0.85}
+          maxWidth={"320px"}
+        />
+      )}
+      
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Info banner */}
         <div style={{

@@ -9,6 +9,7 @@ import { onAuthStateChange } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
 import { GenderSelect } from '@/components/GenderSelect';
+import { Doodle } from '@/components/Doodle';
 import { getStepMetadata, basicsSchema, parseDisplayName } from '@/lib/onboarding';
 
 type BasicsFormData = {
@@ -41,6 +42,9 @@ export default function BasicsStep() {
       genderCustom: ''
     }
   });
+
+  const genderValue = watch('gender');
+  const genderCustomValue = watch('genderCustom');
 
   // Load user data and prefill form
   useEffect(() => {
@@ -162,8 +166,16 @@ export default function BasicsStep() {
       isContinueLoading={loading}
       showBackButton={false}
     >
-      {/* Doodle and dev overlay removed per request */}
-
+      {/* Doodle: Woman with laptop */}
+      <Doodle
+        src="/doodles/1.svg"
+        alt="Person working on laptop"
+        position="bottom-left"
+        offset={{ x: -265, y: -200 }}
+        desktopScale={0.60}
+        mobilePosition="hidden"
+      />
+      
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* First Name */}
         <div style={{ marginBottom: 20 }}>
@@ -263,10 +275,10 @@ export default function BasicsStep() {
 
         {/* Gender */}
         <GenderSelect
-          value={watch('gender') || ''}
+          value={genderValue || ''}
           onChange={(value) => setValue('gender', value, { shouldValidate: true })}
           error={errors.gender?.message || errors.genderCustom?.message}
-          customValue={watch('genderCustom') || ''}
+          customValue={genderCustomValue || ''}
           onCustomChange={(value) => setValue('genderCustom', value, { shouldValidate: true })}
         />
       </form>

@@ -1,93 +1,47 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-// Define protected routes and their required roles
-const protectedRoutes = {
-  '/admin': ['admin'],
-  '/staff': ['staff', 'admin'],
-  '/dashboard': ['client', 'staff', 'admin'], // Add other roles as needed
-};
+// Protect server-side routes for admin and staff areas
+// We gate based on a lightweight cookie set client-side after auth
+// For robust enforcement, combine with Firestore rules (already in place)
 
-// Public routes that don't require authentication
-const publicRoutes = [
-  '/',
-  '/about',
-  '/contact',
-  '/pricing',
-  '/faq',
-  '/terms',
-  '/privacy',
-  '/login',
-  '/signup',
-  '/forgot-password',
-];
+const ADMIN_PREFIX = '/admin';
+const STAFF_PREFIX = '/staff';
 
-/**
- * Middleware to protect routes based on authentication and roles
- * This runs on the Edge Runtime before the page is rendered
- */
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export function middleware(request: Request) {
+  const { pathname } = new URL(request.url);
 
-  // Allow public routes
-  if (publicRoutes.includes(pathname) || pathname.startsWith('/api/')) {
-    return NextResponse.next();
+  const isProtected = pathname.startsWith(ADMIN_PREFIX) || pathname.startsWith(STAFF_PREFIX);
+  if (!isProtected) return NextResponse.next();
+
+  const cookies = (request as any).headers.get('cookie') || '';
+  const role = getCookie(cookies, 'pyro_role'); // 'admin' | 'staff' | 'client'
+  const isAuthed = getCookie(cookies, 'pyro_auth') === '1';
+
+  if (!isAuthed) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Get the authentication cookie
-  const authToken = request.cookies.get('__session');
-  const userRole = request.cookies.get('user_role');
-
-  // Check if this is a protected route
-  const isProtectedRoute = Object.keys(protectedRoutes).some(route => 
-    pathname.startsWith(route)
-  );
-
-  if (!isProtectedRoute) {
-    // For non-protected but auth-required routes, pass through
-    return NextResponse.next();
+  if (pathname.startsWith(ADMIN_PREFIX) && role !== 'admin') {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If no auth token and it's a protected route, redirect to login
-  if (!authToken) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Check role-based access
-  if (userRole) {
-    for (const [route, allowedRoles] of Object.entries(protectedRoutes)) {
-      if (pathname.startsWith(route)) {
-        if (!allowedRoles.includes(userRole.value)) {
-          // User doesn't have required role, redirect to appropriate page
-          if (userRole.value === 'client') {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-          } else if (userRole.value === 'staff') {
-            return NextResponse.redirect(new URL('/staff/dashboard', request.url));
-          } else {
-            return NextResponse.redirect(new URL('/login?error=unauthorized', request.url));
-          }
-        }
-      }
-    }
+  if (pathname.startsWith(STAFF_PREFIX) && !(role === 'staff' || role === 'admin')) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
 }
 
-// Configure which routes to run middleware on
+function getCookie(all: string, name: string): string | undefined {
+  const m = all.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\+^])/g, '\\$1') + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : undefined;
+}
+
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static files (.*\\..*)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
-  ],
+    '/admin/:path*',
+    '/staff/:path*',
+  ]
 };
+
 

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChange } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
+import { Doodle } from '@/components/Doodle';
+import { DoodleDevOverlay } from '@/components/DoodleDevOverlay';
 import { getStepMetadata, jobBoardsSchema } from '@/lib/onboarding';
 import { MAJOR_JOB_BOARDS, ADDITIONAL_JOB_BOARDS } from '@/lib/constants/job-boards';
 
@@ -21,6 +23,8 @@ type JobBoardsFormData = {
 
 export default function JobBoardsStep() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const doodleMode = searchParams.get('doodle');
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [showAdditionalBoards, setShowAdditionalBoards] = useState(false);
@@ -156,7 +160,52 @@ export default function JobBoardsStep() {
       onContinue={handleSubmit(onSubmit)}
       isContinueLoading={loading}
     >
-      {/* All doodles removed per request */}
+      {/* Doodle: Job boards illustration */}
+      {doodleMode !== '2' && (
+        <Doodle
+          src="/doodles/2.svg"
+          alt="Job boards platforms"
+          position="top-left"
+          offset={{ x: -295, y: 19 }}
+          desktopScale={1.50}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '2' && (
+        <DoodleDevOverlay
+          src="/doodles/2.svg"
+          alt="Job boards platforms"
+          position="top-left"
+          initialOffset={{ x: -295, y: 19 }}
+          initialScale={1.50}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* Doodle: Woman with AI/chatbot (beside AI Email Tracking consent section) */}
+      {doodleMode !== '4' && (
+        <Doodle
+          src="/doodles/4.svg"
+          alt="AI email tracking"
+          position="bottom-right"
+          offset={{ x: -408, y: 134 }}
+          desktopScale={1.50}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '4' && (
+        <DoodleDevOverlay
+          src="/doodles/4.svg"
+          alt="AI email tracking"
+          position="bottom-right"
+          initialOffset={{ x: -408, y: 134 }}
+          initialScale={1.50}
+          maxWidth={"320px"}
+        />
+      )}
+      
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Info banner */}
         <div style={{

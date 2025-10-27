@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChange } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { StepShell } from '@/components/StepShell';
+import { Doodle } from '@/components/Doodle';
+import { DoodleDevOverlay } from '@/components/DoodleDevOverlay';
 import { getStepMetadata, getStepRoute } from '@/lib/onboarding';
 import { residencyAliasForCountry } from '@/lib/residency-alias';
 
 export default function ReviewStep() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const doodleMode = searchParams.get('doodle');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -216,9 +220,198 @@ export default function ReviewStep() {
       isContinueLoading={submitting}
       continueLabel={submitting ? 'Submitting...' : 'Submit & Join Waitlist'}
     >
-      {/* All doodles removed per request */}
+      {/* All 7 doodles positioned beside their respective review sections */}
+      
+      {/* 1. Basics Section - Woman with laptop (top left, near Basic Information) */}
+      {doodleMode !== '1' && (
+        <Doodle
+          src="/doodles/1.svg"
+          alt="Person with laptop"
+          position="top-left"
+          offset={{ x: -279, y: 79 }}
+          desktopScale={0.70}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '1' && (
+        <DoodleDevOverlay
+          src="/doodles/1.svg"
+          alt="Person with laptop"
+          position="top-left"
+          initialOffset={{ x: -279, y: 79 }}
+          initialScale={0.70}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* 2. Location Section - Woman with luggage (top right, near Location) - SPLIT INTO 7.0 and 7.1 */}
+      {doodleMode !== '7.0' && (
+        <Doodle
+          src="/doodles/7.0.svg"
+          alt="Traveler with luggage"
+          position="top-right"
+          offset={{ x: -541, y: -145 }}
+          desktopScale={0.30}
+          mobilePosition="hidden"
+          maxWidth="none"
+        />
+      )}
+      {doodleMode === '7.0' && (
+        <DoodleDevOverlay
+          src="/doodles/7.0.svg"
+          alt="Traveler with luggage"
+          position="top-right"
+          initialOffset={{ x: -541, y: -145 }}
+          initialScale={0.30}
+          maxWidth={"none"}
+        />
+      )}
+      
+      {doodleMode !== '7.1' && (
+        <Doodle
+          src="/doodles/7.1.svg"
+          alt="Traveler luggage extension"
+          position="top-right"
+          offset={{ x: 577, y: 272 }}
+          desktopScale={0.35}
+          mobilePosition="hidden"
+        />
+      )}
+      {doodleMode === '7.1' && (
+        <DoodleDevOverlay
+          src="/doodles/7.1.svg"
+          alt="Traveler luggage extension"
+          position="top-right"
+          initialOffset={{ x: 577, y: 272 }}
+          initialScale={0.35}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* 3. Resume Section - Man with briefcase (middle left, near Resume) */}
+      {doodleMode !== '5' && (
+        <Doodle
+          src="/doodles/5.svg"
+          alt="Professional with resume"
+          position="middle-left"
+          offset={{ x: -246, y: -54 }}
+          desktopScale={0.45}
+          mobilePosition="hidden"
+        />
+      )}
+      {doodleMode === '5' && (
+        <DoodleDevOverlay
+          src="/doodles/5.svg"
+          alt="Professional with resume"
+          position="middle-left"
+          initialOffset={{ x: -246, y: -54 }}
+          initialScale={0.45}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* 4. Contact Section - Man at desktop (left) and Man on phone (right) */}
+      {doodleMode !== '6' && (
+        <Doodle
+          src="/doodles/6.0.svg"
+          alt="Person at computer"
+          position="middle-left"
+          offset={{ x: -276, y: 139 }}
+          desktopScale={0.60}
+          mobilePosition="hidden"
+        />
+      )}
+      {doodleMode === '6' && (
+        <DoodleDevOverlay
+          src="/doodles/6.0.svg"
+          alt="Person at computer"
+          position="middle-left"
+          initialOffset={{ x: -276, y: 139 }}
+          initialScale={0.60}
+          maxWidth={"320px"}
+        />
+      )}
+      {doodleMode !== '3' && (
+        <Doodle
+          src="/doodles/3.svg?v=2"
+          alt="Person on phone"
+          position="middle-right"
+          offset={{ x: -275, y: 86 }}
+          desktopScale={0.60}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '3' && (
+        <DoodleDevOverlay
+          src="/doodles/3.svg?v=2"
+          alt="Person on phone"
+          position="middle-right"
+          initialOffset={{ x: -275, y: 86 }}
+          initialScale={0.60}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* 5. Job Boards Section - Job boards illustration (left) and AI woman (right) */}
+      {doodleMode !== '2' && (
+        <Doodle
+          src="/doodles/2.svg"
+          alt="Job boards platforms"
+          position="bottom-left"
+          offset={{ x: -220, y: 138 }}
+          desktopScale={0.60}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '2' && (
+        <DoodleDevOverlay
+          src="/doodles/2.svg"
+          alt="Job boards platforms"
+          position="bottom-left"
+          initialOffset={{ x: -220, y: 138 }}
+          initialScale={0.60}
+          maxWidth={"320px"}
+        />
+      )}
+      {doodleMode !== '4' && (
+        <Doodle
+          src="/doodles/4.svg"
+          alt="AI email tracking"
+          position="bottom-right"
+          offset={{ x: -332, y: 40 }}
+          desktopScale={1.00}
+          mobilePosition="hidden"
+        />
+      )}
+      
+      {doodleMode === '4' && (
+        <DoodleDevOverlay
+          src="/doodles/4.svg"
+          alt="AI email tracking"
+          position="bottom-right"
+          initialOffset={{ x: -332, y: 40 }}
+          initialScale={1.00}
+          maxWidth={"320px"}
+        />
+      )}
+      
+      {/* Success banner */}
+      <div style={{
+        padding: 16,
+        background: '#ecfdf5',
+        border: '1px solid #10b981',
+        borderRadius: 8,
+        marginBottom: 24,
+        fontSize: 14,
+        color: '#065f46',
+        lineHeight: 1.6
+      }}>
+        <strong>🎉 Almost there!</strong> Review your information below. You can edit any section by clicking the "Edit" button. Once you submit, you'll join our waitlist and we'll notify you when your profile is reviewed.
+      </div>
 
-      {/* Success banner and review sections remain unchanged */}
       {/* Step 1: Basics */}
       <ReviewSection title="1. Basic Information" stepPath={getStepRoute(0)}>
         <DataRow label="First Name" value={userData.firstName} />
