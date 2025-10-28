@@ -210,4 +210,167 @@ describe('Firestore Security Rules', () => {
       ).to.be.rejected;
     });
   });
+
+  describe('Security: Deny Cases', () => {
+    let unauthenticatedDb;
+    let otherClientDb;
+
+    before(async () => {
+      // Create unauthenticated context
+      unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+
+      // Create another client user for cross-client tests
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        await db.collection('users').doc('client_999').set({
+          name: 'Other Client',
+          email: 'other@client.com',
+          role: 'client',
+          status: 'active'
+        });
+      });
+      otherClientDb = testEnv.authenticatedContext('client_999').firestore();
+    });
+
+    describe('Unauthenticated Access', () => {
+      it('should deny reading any user document', async () => {
+        await expect(
+          unauthenticatedDb.collection('users').doc('client_789').get()
+        ).to.be.rejected;
+      });
+
+      it('should deny creating user documents', async () => {
+        await expect(
+          unauthenticatedDb.collection('users').add({
+            email: 'hacker@evil.com',
+            role: 'admin'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should deny reading applications', async () => {
+        await expect(
+          unauthenticatedDb.collection('applications').doc('app_123').get()
+        ).to.be.rejected;
+      });
+
+      it('should deny reading notifications', async () => {
+        await expect(
+          unauthenticatedDb.collection('notifications').get()
+        ).to.be.rejected;
+      });
+    });
+
+    describe('Cross-User Access', () => {
+      it('should prevent clients from reading other users profiles', async () => {
+        await expect(
+          clientDb.collection('users').doc('client_999').get()
+        ).to.be.rejected;
+      });
+
+      it('should prevent clients from updating other users', async () => {
+        await expect(
+          clientDb.collection('users').doc('client_999').update({
+            name: 'Hacked Name'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should prevent clients from reading other clients applications', async () => {
+        // Create application for other client
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          const db = context.firestore();
+          await db.collection('applications').doc('app_999').set({
+            clientId: 'client_999',
+            assignedStaffId: 'staff_456',
+            company: 'Secret Company',
+            position: 'Secret Position',
+            status: 'applied'
+          });
+        });
+
+        await expect(
+          clientDb.collection('applications').doc('app_999').get()
+        ).to.be.rejected;
+      });
+    });
+
+    describe('Role Escalation Prevention', () => {
+      it('should prevent clients from changing their own role', async () => {
+        await expect(
+          clientDb.collection('users').doc('client_789').update({
+            role: 'admin'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should prevent staff from updating admin users', async () => {
+        await expect(
+          staffDb.collection('users').doc('admin_123').update({
+            status: 'inactive'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should prevent staff from granting themselves admin role', async () => {
+        await expect(
+          staffDb.collection('users').doc('staff_456').update({
+            role: 'admin'
+          })
+        ).to.be.rejected;
+      });
+    });
+
+    describe('Write Access Control', () => {
+      it('should prevent staff from writing to users collection', async () => {
+        await expect(
+          staffDb.collection('users').doc('new_user_123').set({
+            email: 'unauthorized@user.com',
+            role: 'client'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should prevent clients from creating applications directly', async () => {
+        await expect(
+          clientDb.collection('applications').add({
+            clientId: 'client_789',
+            company: 'Fake Company',
+            status: 'applied'
+          })
+        ).to.be.rejected;
+      });
+
+      it('should prevent clients from deleting their own user document', async () => {
+        await expect(
+          clientDb.collection('users').doc('client_789').delete()
+        ).to.be.rejected;
+      });
+    });
+
+    describe('Onboarding Collection Security', () => {
+      it('should prevent clients from reading other users onboarding data', async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          const db = context.firestore();
+          await db.collection('onboarding').doc('client_999').set({
+            step: 'basics',
+            data: { sensitive: 'info' }
+          });
+        });
+
+        await expect(
+          clientDb.collection('onboarding').doc('client_999').get()
+        ).to.be.rejected;
+      });
+
+      it('should prevent unauthorized creation of onboarding docs', async () => {
+        await expect(
+          clientDb.collection('onboarding').doc('other_user_123').set({
+            step: 'basics',
+            data: {}
+          })
+        ).to.be.rejected;
+      });
+    });
+  });
 });
